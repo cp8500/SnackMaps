@@ -12,6 +12,7 @@ import android.widget.Button;
 
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -28,6 +29,7 @@ public class ProductPage extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        System.out.println(MainActivity.items.size());
 
         listStart = 0;
 
@@ -74,13 +76,7 @@ public class ProductPage extends AppCompatActivity {
         TextView textView = findViewById(R.id.ProductNameCard1);
         textView.setText("hudishfowe");
 
-        int maxItemsShow;
-        if(MainActivity.items.size() > itemsPerPage){
-            maxItemsShow = itemsPerPage;
-        }
-        else {
-            maxItemsShow = MainActivity.items.size();
-        }
+
 
         String url= "https://th.bing.com/th/id/OIP.cRu1DrTQqTXb0KkM4M3iVgHaJ4?rs=1&pid=ImgDetMain";
 //        Picasso.with(ProductPage.this).load("https://www.bing.com/images/search?view=detailV2&ccid=TX5cvuJg&id=E96D4A2CFA7AC6F47E9F8FED94D3A587022EB3A0&thid=OIP.TX5cvuJgfnEdPcvRUE0TSAHaFU&mediaurl=https%3a%2f%2fcbsnews1.cbsistatic.com%2fhub%2fi%2f2012%2f03%2f30%2fcc26a85a-d26f-11e2-a43e-02911869d855%2fwhopper.jpg&cdnurl=https%3a%2f%2fth.bing.com%2fth%2fid%2fR.4d7e5cbee2607e711d3dcbd1504d1348%3frik%3doLMuAoel05Ttjw%26pid%3dImgRaw%26r%3d0&exph=920&expw=1280&q=burger+king&simid=608043923811289183&FORM=IRPRST&ck=A54BB3F4D077E0436049BDF6A831DCF0&selectedIndex=10&itb=0").into(imageView);
@@ -89,26 +85,10 @@ public class ProductPage extends AppCompatActivity {
 
 
 
+        Button btnNext = findViewById(R.id.NextButton);
+        Button btnBack = findViewById(R.id.BackButton);
 
-
-        for(int i = listStart; i < maxItemsShow * listSectionSize; i++){
-            int begining = i / listSectionSize;
-            textView = allProduct[begining];
-            textView.setText(MainActivity.items.get(i).toString());
-            i++;
-
-            textView = allPrice[begining];
-            textView.setText(MainActivity.items.get(i).toString());
-            i++;
-
-            imageView = allImageView[begining];
-            Glide.with(this).load(MainActivity.items.get(i).toString()).into(imageView);
-            i++;
-
-            textView = allStores[begining];
-            textView.setText(MainActivity.items.get(i).toString());
-        }
-
+        populateCards(allProduct, allPrice, allImageView, allStores, cards, this, btnNext, btnBack);
 
 
         //region - brings the user back to the main page
@@ -125,7 +105,7 @@ public class ProductPage extends AppCompatActivity {
 
         //region - brings the current page to the second product page
         //gets the corresponding XML object and assigns it to a variable
-        Button btnNext = findViewById(R.id.NextButton);
+        //Button btnNext = findViewById(R.id.NextButton);
         final Activity thisreference = this;
         btnNext.setOnClickListener(new View.OnClickListener() {
             // when the button is clicked, the listener opens the new activity
@@ -134,52 +114,21 @@ public class ProductPage extends AppCompatActivity {
                 //startActivity(new Intent(ProductPage.this, ProductPage2.class));
 
                 System.out.println("Dani's code ran");
-
                 listStart += itemsPerPage * listSectionSize;
 
-                TextView tempTextVeiw;
-                ImageView tempImageVeiw;
-                int textBoxIndex = 0;
-
-                for(int i = listStart; i < listStart + maxItemsShow * listSectionSize; i++){
-
-                    System.out.println(i + ", " + MainActivity.items.size());
-
-                    //if we've gotten everything, hide the remaining cards and the next button
-                    if (MainActivity.items.size() <= i) {
-                        while (textBoxIndex < 10){
-                            cards[textBoxIndex].setVisibility(ConstraintLayout.INVISIBLE);
-                            textBoxIndex++;
-                        }
-                        btnNext.setVisibility(Button.INVISIBLE);
-
-                        break;
-                    }
-
-                    //System.out.println(i);
-
-
-                    tempTextVeiw = allProduct[textBoxIndex];
-                    tempTextVeiw.setText(MainActivity.items.get(i).toString());
-                    i++;
-
-                    tempTextVeiw = allPrice[textBoxIndex];
-                    tempTextVeiw.setText(MainActivity.items.get(i).toString());
-                    i++;
-
-                    tempImageVeiw = allImageView[textBoxIndex];
-                    Glide.with(thisreference).load(MainActivity.items.get(i).toString()).into(tempImageVeiw);
-                    i++;
-
-                    tempTextVeiw = allStores[textBoxIndex];
-                    tempTextVeiw.setText(MainActivity.items.get(i).toString());
-
-                    textBoxIndex++;
-                }
+                populateCards(allProduct, allPrice, allImageView, allStores, cards, thisreference, btnNext, btnBack);
 
             }
         });
         //endregion
+        //Button btnBack = findViewById(R.id.BackButton);
+        btnBack.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                listStart -= itemsPerPage * listSectionSize;
+
+                populateCards(allProduct, allPrice, allImageView, allStores, cards, thisreference, btnNext, btnBack);
+            }
+        });
 
         //region - brings the current page to the first product page with new product searches
         //gets the corresponding XML object and assigns it to a variable
@@ -203,4 +152,63 @@ public class ProductPage extends AppCompatActivity {
 //        System.out.println(input);
         return input;
     }
+
+    public void populateCards(TextView[] allProduct, TextView[] allPrice, ImageView[] allImageView, TextView[] allStores,
+                              ConstraintLayout[] cards, Activity activity, Button btnNext, Button btnBack){
+
+        TextView tempTextVeiw;
+        ImageView tempImageVeiw;
+
+        /**
+        if(MainActivity.items.size() == 0){
+            tempImageVeiw =
+            Glide.with(activity).load();//.into(tempImageVeiw);
+        }
+         **/
+
+        btnBack.setVisibility(listStart == 0 ? Button.GONE : Button.VISIBLE);
+        btnNext.setVisibility(Button.VISIBLE);
+
+        for (ConstraintLayout card : cards){
+            card.setVisibility(ConstraintLayout.VISIBLE);
+        }
+
+
+        int textBoxIndex = 0;
+
+        for(int i = listStart; i < listStart + itemsPerPage * listSectionSize; i++){
+
+            System.out.println(i + ", " + MainActivity.items.size());
+
+            //if we've gotten everything, hide the remaining cards and the next button
+            if (MainActivity.items.size() <= i) {
+                while (textBoxIndex < itemsPerPage){
+                    cards[textBoxIndex].setVisibility(ConstraintLayout.INVISIBLE);
+                    textBoxIndex++;
+                }
+                btnNext.setVisibility(Button.GONE);
+
+                break;
+            }
+
+            tempTextVeiw = allProduct[textBoxIndex];
+            tempTextVeiw.setText(MainActivity.items.get(i).toString());
+            i++;
+
+            tempTextVeiw = allPrice[textBoxIndex];
+            tempTextVeiw.setText(MainActivity.items.get(i).toString());
+            i++;
+
+            tempImageVeiw = allImageView[textBoxIndex];
+            Glide.with(activity).load(MainActivity.items.get(i).toString()).into(tempImageVeiw);
+            i++;
+
+            tempTextVeiw = allStores[textBoxIndex];
+            tempTextVeiw.setText(MainActivity.items.get(i).toString());
+
+            textBoxIndex++;
+        }
+    }
+
+
 }
