@@ -1,8 +1,10 @@
 package com.example.myapplication;
 
+import android.app.Activity;
 import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.os.Bundle;
 import android.view.View;
@@ -19,9 +21,16 @@ import com.chaquo.python.android.AndroidPlatform;
 
 public class ProductPage extends AppCompatActivity {
 
+    static int listStart = 0;
+    static final int listSectionSize = 4;
+
+    final int itemsPerPage = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        listStart = 0;
+
         if (! Python.isStarted()) {
             Python.start(new AndroidPlatform(this));
         }
@@ -36,6 +45,11 @@ public class ProductPage extends AppCompatActivity {
         setContentView(R.layout.activity_product_page);
 
         MainActivity.Send.textInput = findViewById(R.id.Searchbar);
+
+        ConstraintLayout[] cards = {findViewById(R.id.cardView), findViewById(R.id.cardView2), findViewById(R.id.cardView3),
+                findViewById(R.id.cardView4), findViewById(R.id.cardView5), findViewById(R.id.cardView6),
+                findViewById(R.id.cardView7), findViewById(R.id.cardView8), findViewById(R.id.cardView9),
+                findViewById(R.id.cardView10)};
 
         TextView[] allProduct = {findViewById(R.id.ProductNameCard1), findViewById(R.id.ProductNameCard2), findViewById(R.id.ProductNameCard3),
                 findViewById(R.id.ProductNameCard4), findViewById(R.id.ProductNameCard5), findViewById(R.id.ProductNameCard6),
@@ -61,8 +75,8 @@ public class ProductPage extends AppCompatActivity {
         textView.setText("hudishfowe");
 
         int maxItemsShow;
-        if(MainActivity.items.size() > 10){
-            maxItemsShow = 10;
+        if(MainActivity.items.size() > itemsPerPage){
+            maxItemsShow = itemsPerPage;
         }
         else {
             maxItemsShow = MainActivity.items.size();
@@ -74,9 +88,11 @@ public class ProductPage extends AppCompatActivity {
 
 
 
-        int begining = 0;
-        for(int i = 0; i < maxItemsShow * 4; i++){
-            begining = i / 4;
+
+
+
+        for(int i = listStart; i < maxItemsShow * listSectionSize; i++){
+            int begining = i / listSectionSize;
             textView = allProduct[begining];
             textView.setText(MainActivity.items.get(i).toString());
             i++;
@@ -110,11 +126,57 @@ public class ProductPage extends AppCompatActivity {
         //region - brings the current page to the second product page
         //gets the corresponding XML object and assigns it to a variable
         Button btnNext = findViewById(R.id.NextButton);
+        final Activity thisreference = this;
         btnNext.setOnClickListener(new View.OnClickListener() {
             // when the button is clicked, the listener opens the new activity
             @Override
             public void onClick(View v) {
                 //startActivity(new Intent(ProductPage.this, ProductPage2.class));
+
+                System.out.println("Dani's code ran");
+
+                listStart += itemsPerPage * listSectionSize;
+
+                TextView tempTextVeiw;
+                ImageView tempImageVeiw;
+                int textBoxIndex = 0;
+
+                for(int i = listStart; i < listStart + maxItemsShow * listSectionSize; i++){
+
+                    System.out.println(i + ", " + MainActivity.items.size());
+
+                    //if we've gotten everything, hide the remaining cards and the next button
+                    if (MainActivity.items.size() <= i) {
+                        while (textBoxIndex < 10){
+                            cards[textBoxIndex].setVisibility(ConstraintLayout.INVISIBLE);
+                            textBoxIndex++;
+                        }
+                        btnNext.setVisibility(Button.INVISIBLE);
+
+                        break;
+                    }
+
+                    //System.out.println(i);
+
+
+                    tempTextVeiw = allProduct[textBoxIndex];
+                    tempTextVeiw.setText(MainActivity.items.get(i).toString());
+                    i++;
+
+                    tempTextVeiw = allPrice[textBoxIndex];
+                    tempTextVeiw.setText(MainActivity.items.get(i).toString());
+                    i++;
+
+                    tempImageVeiw = allImageView[textBoxIndex];
+                    Glide.with(thisreference).load(MainActivity.items.get(i).toString()).into(tempImageVeiw);
+                    i++;
+
+                    tempTextVeiw = allStores[textBoxIndex];
+                    tempTextVeiw.setText(MainActivity.items.get(i).toString());
+
+                    textBoxIndex++;
+                }
+
             }
         });
         //endregion
