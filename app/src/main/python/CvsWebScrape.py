@@ -1,13 +1,15 @@
 import requests
 import numpy as np
+import time
 
 
 items = []
 
 def getItems(search):
     items = []
+    time.sleep(1)
     url = ("https://www.dollargeneral.com/bin/omni/pickup/productSearch?_="
-           "1710261242248&pageSize=12&pageStartIndex=0&storeNumber=11817&sort=0&inStock=false&dgPickup=false&brand=&inStoreOnly=false&dgShipToHome"
+           "1710261242248&pageSize=37&pageStartIndex=0&storeNumber=11817&sort=0&inStock=false&dgPickup=false&brand=&inStoreOnly=false&dgShipToHome"
            "=false&dgDelivery=false&mode=0&"
            "searchTerm=" + search +
            "&category=&deviceId=0523bcea-6751-430c-b30f-136cd2513597&isMobileDevice=false&clientOriginStoreNumber=")
