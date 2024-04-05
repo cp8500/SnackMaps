@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,16 +21,14 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     static List<PyObject> items;
-    static class Send {
-        static EditText textInput;
-    }
+    EditText textInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Send.textInput = findViewById(R.id.TextInput);
+        textInput = findViewById(R.id.TextInput);
 
         if (! Python.isStarted()) {
             Python.start(new AndroidPlatform(this));
@@ -52,9 +51,19 @@ public class MainActivity extends AppCompatActivity {
             // when the button is clicked, the listener opens the new activity
             @Override
             public void onClick(View v) {
-                MainActivity.items = scrapeCode.call(storeInput()).asList();
-                System.out.println(MainActivity.items.size());
-                startActivity(new Intent(MainActivity.this, ProductPage.class));
+                pageSet(scrapeCode);
+            }
+        });
+
+        textInput.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER){
+                    System.out.println("sodfou");
+                    pageSet(scrapeCode);
+                    return true;
+                }
+                return false;
             }
         });
     }
@@ -64,8 +73,14 @@ public class MainActivity extends AppCompatActivity {
      * stores input into string variable to be passed into web-scraping tools
      */
     public String storeInput() {
-        EditText textInput = findViewById(R.id.TextInput);
+        textInput = findViewById(R.id.TextInput);
         String input = textInput.getText().toString();
         return input;
+    }
+
+    public void pageSet(PyObject scrapeCode){
+        MainActivity.items = scrapeCode.call(storeInput()).asList();
+        System.out.println(MainActivity.items.size());
+        startActivity(new Intent(MainActivity.this, ProductPage.class));
     }
 }

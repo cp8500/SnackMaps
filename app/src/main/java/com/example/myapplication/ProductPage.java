@@ -27,6 +27,8 @@ public class ProductPage extends AppCompatActivity {
 
     final int itemsPerPage = 10; // the amount of items that are on each page
 
+    EditText textInput;
+
     /**
      * sets the the list that contain the ui that can be edited as well as calls the function that populates the first page
      * @param savedInstanceState If the activity is being re-initialized after
@@ -147,7 +149,7 @@ public class ProductPage extends AppCompatActivity {
      * @return the input that can be used to search for new inputs
      */
     public String storeInput() {
-        EditText textInput = findViewById(R.id.TextInput);
+        textInput = findViewById(R.id.TextInput);
         String input = textInput.getText().toString();
 //        System.out.println(input);
         return input;
