@@ -10,8 +10,8 @@ tools:layout_editor_absoluteY="30dp">
 
 <ScrollView
     android:id="@+id/scrollView2"
-    android:layout_width="403dp"
-    android:layout_height="549dp"
+    android:layout_width="fill_parent"
+    android:layout_height="749dp"
     android:layout_marginStart="2dp"
     android:layout_marginTop="110dp"
     android:layout_marginBottom="1dp"
